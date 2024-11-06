@@ -1,5 +1,5 @@
 ### Repository details
-This repository contains a project for a hardware-based Tic-Tac-Toe 3x3 game using Arduino Uno and C# WPF. The core game logic and decision-making will be handled on the Arduino Uno, while the C# WPF application will function as a graphical user interface, allowing users to interact with the game.
+This repository contains a project for a hardware-based Tic-Tac-Toe 3x3 game using Arduino Uno and Python TKinter. The core game logic and decision-making will be handled on the Arduino Uno, while the Python TKinter application will function as a graphical user interface, allowing users to interact with the game.
 
 ### Task details
 ***Game Logic:*** Implement the core game logic of a 3x3 Tic-Tac-Toe on the Arduino Uno.
@@ -25,13 +25,13 @@ This repository contains a project for a hardware-based Tic-Tac-Toe 3x3 game usi
 ### Technology Stack and Hardware Used
 
 #### Hardware
-- **Arduino Uno**: The Arduino will handle most of the game logic, including managing inputs, processing the current game state, and sending data to the C# application.
+- **Arduino Uno**: The Arduino will handle most of the game logic, including managing inputs, processing the current game state, and sending data to the Python application.
 
 #### Software
-- **C# WPF**: Used for creating the graphical user interface (GUI) that displays the game board and allows users to view the game progress in real time.
+- **Python TKinter**: Used for creating the graphical user interface (GUI) that displays the game board and allows users to view the game progress in real time.
 - **Arduino IDE**: To write and upload the logic code to the Arduino Uno, primarily using C/C++ for low-level control.
 #### Programming languages
-- **C#**: Used to develop the WPF interface that will interact with the Arduino.
+- **Python**: Used to develop the TKinter interface that will interact with the Arduino.
 - **C/C++**: Used in the Arduino environment to develop the Tic-Tac-Toe game logic.
 #### Communication
-- **Serial Communication**: The Arduino will communicate with the C# WPF interface through a UART serial port to send and receive game status and input data.
+- **Serial Communication**: The Arduino will communicate with the Python TKinter interface through a UART serial port to send and receive game status and input data.
