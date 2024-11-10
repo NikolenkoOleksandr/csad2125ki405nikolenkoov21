@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [develop]
+    branches: [feature/develop/task2]
   pull_request:
     branches: [develop]
 
