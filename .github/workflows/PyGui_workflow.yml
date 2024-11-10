@@ -29,6 +29,7 @@ jobs:
     - name: Build binaries
       run: |
         source venv/bin/activate
+        cd Client_GUI
         pyinstaller --onefile main.py
       # Store binary in artifacts
     - name: Upload binaries
