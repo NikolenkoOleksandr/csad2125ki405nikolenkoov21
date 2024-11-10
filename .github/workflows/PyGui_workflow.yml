@@ -23,7 +23,8 @@ jobs:
       run: |
         python -m venv venv
         source venv/bin/activate
-        pip install -r ../Client_GUI/requirements.txt
+        cd Client_GUI
+        pip install -r requirements.txt
 
     - name: Build binaries
       run: |
