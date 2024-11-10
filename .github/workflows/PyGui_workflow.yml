@@ -62,7 +62,7 @@ jobs:
       run: |
         source venv/bin/activate
         cd Client_GUI
-        python test_main.py
+        python -m unittest test_main.py -v
       # Store test results in artifacts
     - name: Upload test results
       uses: actions/upload-artifact@v3
