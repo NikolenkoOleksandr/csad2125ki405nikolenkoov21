@@ -31,7 +31,7 @@ jobs:
 
       - name: Compile Arduino code
         run: |
-          arduino-cli compile --fqbn arduino:avr:uno --output-dir "./ci-build" "./Host_logic/lab2.ino"
+          arduino-cli compile --fqbn arduino:avr:uno --output-dir "./ci-build" "./Host_logic/Host_logic.ino"
 
       - name: Save HEX file
         run: |
