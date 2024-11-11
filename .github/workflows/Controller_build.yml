@@ -36,7 +36,7 @@ jobs:
       - name: Save HEX file
         run: |
           mkdir -p "./ci-build/server/"
-          cp "./ci-build/lab2.ino.hex" "./ci-build/server/server-script-arduino-uno-r3.ino.hex"
+          cp "./ci-build/Host_logic.ino.hex" "./ci-build/server/server-script-arduino-uno-r3.ino.hex"
 
       - name: Upload Arduino Uno R3 HEX Artifact
         uses: actions/upload-artifact@v3.1.2
