@@ -1,0 +1,45 @@
+name: Server Script СІ
+
+on:
+  push:
+    branches: ["feature/develop/task2"]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+  pull_request:
+    branches: ["develop"]
+  workflow_dispatch:
+
+jobs:
+  arduino-uno-r3-build:
+    runs-on: ubuntu-latest
+    name: Arduino Uno R3 Build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+          echo "/home/runner/work/csad2125ki405nikolenkoov21/csad2125ki405nikolenkoov21/bin" >> $GITHUB_PATH
+          export PATH=$PATH:/home/runner/work/csad2125ki405nikolenkoov21/csad2125ki405nikolenkoov21/bin
+          arduino-cli config init
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+
+      - name: Compile Arduino code
+        run: |
+          arduino-cli compile --fqbn arduino:avr:uno --output-dir "./ci-build" "./Host_logic/lab2.ino"
+
+      - name: Save HEX file
+        run: |
+          mkdir -p "./ci-build/server/"
+          cp "./ci-build/lab2.ino.hex" "./ci-build/server/server-script-arduino-uno-r3.ino.hex"
+
+      - name: Upload Arduino Uno R3 HEX Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: server-script-arduino-uno-r3
+          path: "./ci-build/server/server-script-arduino-uno-r3.ino.hex"
