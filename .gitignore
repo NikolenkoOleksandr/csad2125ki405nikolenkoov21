@@ -7,8 +7,6 @@ __pycache__/
 .Python
 env/
 build/
-result/
-develop/
 develop-eggs/
 dist/
 downloads/
@@ -43,3 +41,7 @@ test_reports.txt
 .vscode/
 *.swp
 *.swo
+
+# Add Client-side/deploy and Client-side/results to .gitignore
+Client-side/deploy/
+Client-side/results/
