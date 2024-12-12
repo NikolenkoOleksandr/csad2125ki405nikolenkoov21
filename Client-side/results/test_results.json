@@ -1,0 +1,52 @@
+[
+    {
+        "level": "INFO",
+        "message": "Starting test method: test_default_config_creation",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Default config creation test passed",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Starting test method: test_config_baud_rate_options",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Baud rate options test passed",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Starting test method: test_game_mode_mapping",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Game mode mapping test passed",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Starting test method: test_board_size_validation",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Board size validation test passed",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Starting test method: test_connection_port_validation",
+        "timestamp": "2024-12-12 20:47:50"
+    },
+    {
+        "level": "INFO",
+        "message": "Connection port validation test passed",
+        "timestamp": "2024-12-12 20:47:50"
+    }
+]

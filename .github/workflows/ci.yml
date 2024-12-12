@@ -1,0 +1,93 @@
+name: Python Serial Communication CI
+
+on:
+  push:
+    branches:
+      - feature/develop/task3
+  pull_request:
+    branches:
+      - feature/develop/task3
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Python environment
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      # Install Arduino CLI with explicit PATH management
+      - name: Install Arduino CLI
+        run: |
+          mkdir -p /home/runner/bin
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/home/runner/bin sh
+          echo "/home/runner/bin" >> $GITHUB_PATH
+          export PATH="/home/runner/bin:$PATH"
+          which arduino-cli
+          arduino-cli version
+          arduino-cli core update-index
+
+      # Install Arduino core for Arduino Uno
+      - name: Install Arduino Uno Core
+        run: |
+          arduino-cli core install arduino:avr
+
+      # Create directories for artifacts
+      - name: Create directories
+        run: |
+          mkdir -p Client-side/deploy/client-output
+          mkdir -p Client-side/deploy/server-output
+          mkdir -p Client-side/deploy/test-results
+
+      # Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          python3 -m venv Client-side/venv
+          source Client-side/venv/bin/activate
+          pip install --upgrade pip
+          pip install pyserial PyQt5 pytest pytest-json-report
+          pip list
+          deactivate
+
+      # Compile client
+      - name: Compile Client
+        run: |
+          source Client-side/venv/bin/activate
+          python3 -m py_compile Client-side/main.py > Client-side/deploy/client-output/build.log 2>&1
+          cat Client-side/deploy/client-output/build.log
+          deactivate
+
+      # Compile server firmware
+      - name: Compile Server Firmware
+        run: |
+          export PATH="/home/runner/bin:$PATH"
+          arduino-cli compile --fqbn arduino:avr:uno Server-side/Server-side.ino --output-dir Client-side/deploy/server-output
+
+      # Run tests
+      - name: Run Tests
+        run: |
+          source Client-side/venv/bin/activate
+          cd Client-side
+          pytest tests/test.py -v --json-report --json-report-file=deploy/test-results/results.json
+          deactivate
+
+      # Upload artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: serial-communication-artifacts
+          path: Client-side/deploy/
+
+      # Optional: Add a cleanup step if needed
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf Client-side/venv
+          rm -rf __pycache__
