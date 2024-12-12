@@ -75,7 +75,7 @@ jobs:
         run: |
           source Client-side/venv/bin/activate
           cd Client-side
-          pytest tests/test.py -v --json-report --json-report-file=deploy/test-results/results.json
+          pytest test.py -v --json-report --json-report-file=deploy/test-results/results.json
           deactivate
 
       # Upload artifacts
