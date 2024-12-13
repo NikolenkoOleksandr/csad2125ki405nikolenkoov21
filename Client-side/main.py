@@ -1,3 +1,8 @@
+"""
+@defgroup client_side Client Side
+@brief Documentation for the client-side application.
+@{
+"""
 import sys
 import configparser
 import serial
@@ -11,13 +16,24 @@ from PyQt5.QtGui import QFont, QPalette, QColor
 
 
 class TicTacToeGUI(QMainWindow):
+    """
+    @ingroup client_side
+    @class TicTacToeGUI
+    @brief GUI for the Tic Tac Toe game using PyQt5.
+    """
     def __init__(self):
+        """
+        @brief Initialize the Tic Tac Toe GUI application.
+        """
         super().__init__()
         self.init_ui()
         self.init_game_state()
         self.init_timers()
 
     def init_ui(self):
+        """
+        @brief Set up the user interface for the application.
+        """
         self.setWindowTitle("Tic Tac Toe Game")
         self.setMinimumSize(500, 600)
         self.setStyleSheet("""
@@ -80,6 +96,10 @@ class TicTacToeGUI(QMainWindow):
         layout.addWidget(self.reset_btn)
 
     def create_connection_controls(self):
+        """
+        @brief Create controls for serial connection settings.
+        @return QHBoxLayout containing the connection controls.
+        """
         conn_layout = QHBoxLayout()
         conn_layout.setSpacing(10)
 
@@ -111,6 +131,10 @@ class TicTacToeGUI(QMainWindow):
         return conn_layout
 
     def create_game_mode_controls(self):
+        """
+        @brief Create controls for selecting the game mode.
+        @return QHBoxLayout containing the game mode controls.
+        """
         mode_layout = QHBoxLayout()
         self.mode_combo = QComboBox()
         self.mode_combo.addItems(['Man vs Man', 'Man vs AI', 'AI vs AI'])
@@ -121,6 +145,10 @@ class TicTacToeGUI(QMainWindow):
         return mode_layout
 
     def create_game_board(self):
+        """
+        @brief Create the Tic Tac Toe game board UI.
+        @return QGridLayout containing the game board buttons.
+        """
         board_layout = QGridLayout()
         board_layout.setSpacing(5)
         self.board_buttons = []
@@ -136,10 +164,16 @@ class TicTacToeGUI(QMainWindow):
         return board_layout
 
     def init_game_state(self):
+        """
+        @brief Initialize the game state variables.
+        """
         self.serial_conn = None
         self.game_active = True
 
     def init_timers(self):
+        """
+        @brief Initialize timers for AI moves and connection monitoring.
+        """
         # Timer for AI moves
         self.ai_timer = QTimer()
         self.ai_timer.timeout.connect(self.check_ai_moves)
@@ -150,6 +184,10 @@ class TicTacToeGUI(QMainWindow):
         self.connection_timer.start(1000)
 
     def load_config(self):
+        """
+        @brief Load application settings from a configuration file.
+        @return ConfigParser object containing the loaded settings.
+        """
         config = configparser.ConfigParser()
         try:
             config.read('tictactoe.ini')
@@ -161,6 +199,9 @@ class TicTacToeGUI(QMainWindow):
         return config
 
     def refresh_ports(self):
+        """
+        @brief Refresh the list of available serial ports.
+        """
         current_port = self.port_combo.currentText()
         self.port_combo.clear()
         ports = [port.device for port in serial.tools.list_ports.comports()]
@@ -171,6 +212,9 @@ class TicTacToeGUI(QMainWindow):
             self.port_combo.setCurrentText(ports[0])
 
     def check_connection(self):
+        """
+        @brief Check if the serial connection is active.
+        """
         try:
             if self.serial_conn:
                 try:
@@ -184,6 +228,9 @@ class TicTacToeGUI(QMainWindow):
             QApplication.quit()  # Закриваємо додаток
 
     def handle_disconnection(self):
+        """
+        @brief Handle serial connection disconnection.
+        """
         self.serial_conn = None
         self.connect_btn.setText("Connect")
         self.connect_btn.setStyleSheet("")
@@ -195,6 +242,9 @@ class TicTacToeGUI(QMainWindow):
         self.game_active = True
 
     def toggle_connection(self):
+        """
+        @brief Toggle the connection state with the Arduino device.
+        """
         if self.serial_conn is None:
             try:
                 port = self.port_combo.currentText()
@@ -224,6 +274,9 @@ class TicTacToeGUI(QMainWindow):
             self.handle_disconnection()
 
     def change_mode(self):
+        """
+        @brief Change the game mode based on user selection.
+        """
         if self.serial_conn:
             mode_map = {'Man vs Man': 1, 'Man vs AI': 2, 'AI vs AI': 3}
             mode = mode_map[self.mode_combo.currentText()]
@@ -241,6 +294,10 @@ class TicTacToeGUI(QMainWindow):
                 self.handle_disconnection()
 
     def make_move(self, position):
+        """
+        @brief Handle the player's move at the given position.
+        @param position The index of the board position (0-8).
+        """
         if not self.serial_conn:
             QMessageBox.warning(self, "Warning",
                                 "Not connected to Arduino.\nPlease connect first.")
@@ -259,6 +316,9 @@ class TicTacToeGUI(QMainWindow):
             self.handle_disconnection()
 
     def process_response(self):
+        """
+        @brief Process responses from the Arduino device.
+        """
         try:
             response = self.serial_conn.readline().decode().strip()
             if response.startswith("BOARD:"):
@@ -300,11 +360,17 @@ class TicTacToeGUI(QMainWindow):
             self.handle_disconnection()
 
     def check_ai_moves(self):
+        """
+        @brief Check for AI moves in AI vs AI mode.
+        """
         if self.serial_conn and self.mode_combo.currentText() == 'AI vs AI' and self.game_active:
             if self.serial_conn.in_waiting:
                 self.process_response()
 
     def reset_game(self):
+        """
+        @brief Reset the game state and board.
+        """
         if self.serial_conn:
             try:
                 self.serial_conn.write(b"RESET\n")
@@ -326,6 +392,10 @@ class TicTacToeGUI(QMainWindow):
             self.game_active = True
 
     def closeEvent(self, event):
+        """
+        @brief Handle application close event.
+        @param event The close event object.
+        """
         try:
             if self.serial_conn:
                 self.serial_conn.close()
@@ -344,7 +414,14 @@ class TicTacToeGUI(QMainWindow):
                 event.accept()
 
 
+"""
+@}
+"""
+
 if __name__ == '__main__':
+    """
+    @brief Main entry point for the application.
+    """
     try:
         app = QApplication(sys.argv)
         app.setStyle('Fusion')

@@ -1,22 +1,48 @@
 #include <EEPROM.h>
 
+/**
+ * @defgroup server_side Server Side
+ * @brief Documentation for the server-side firmware.
+ * @{
+ */
+
+/**
+ * @enum GameMode
+ * @brief Enum representing game modes.
+ */
 enum GameMode {
   MAN_VS_MAN = 1,
   MAN_VS_AI = 2,
   AI_VS_AI = 3
 };
 
+/** @brief Game board representation (0: empty, 1: X, 2: O). */
 int board[9] = {0,0,0,0,0,0,0,0,0};
+
+/** @brief Current game mode. */
 GameMode currentMode = MAN_VS_MAN;
+
+/** @brief Indicates whether it is the first player's turn. */
 bool isFirstPlayerTurn = true;
+
+/** @brief Flag to control AI vs AI game flow. */
 bool aiGameRunning = false;  // New flag to control AI vs AI game flow
 
-// Helper function to check if three positions match
-bool checkLine(int a, int b, int c) {
+/**
+ * @brief Helper function to check if three positions match.
+ * @param a Index of the first position.
+ * @param b Index of the second position.
+ * @param c Index of the third position.
+ * @return True if all three positions match; otherwise, false.
+ */
+ bool checkLine(int a, int b, int c) {
   return (board[a] != 0) && (board[a] == board[b]) && (board[b] == board[c]);
 }
 
-// Check for winner (returns 1 for X, 2 for O, 0 for no winner)
+/**
+ * @brief Check for the winner.
+ * @return 1 if player X wins, 2 if player O wins, 0 if no winner.
+ */
 int checkWinner() {
   // Check rows
   for(int i = 0; i < 9; i += 3)
@@ -33,14 +59,22 @@ int checkWinner() {
   return 0;
 }
 
-// Check if board is full
+
+/**
+ * @brief Check if the game board is full.
+ * @return True if the board is full; otherwise, false.
+ */
 bool isBoardFull() {
   for(int i = 0; i < 9; i++)
     if(board[i] == 0) return false;
   return true;
 }
 
-// AI move calculation
+/**
+ * @brief Calculate the AI's move.
+ * @param player The player for which the move is calculated (1: X, 2: O).
+ * @return The index of the calculated move, or -1 if no move is possible.
+ */
 int calculateAIMove(int player) {
   // First check if AI can win
   for(int i = 0; i < 9; i++) {
@@ -84,6 +118,11 @@ int calculateAIMove(int player) {
   return -1;
 }
 
+
+/**
+ * @brief Process the received command.
+ * @param command The received command as a string.
+ */
 void processCommand(String command) {
   // Обробка команди тесту підключення
   if(command == "<test_connection/>") {
@@ -161,6 +200,9 @@ void processCommand(String command) {
   }
 }
 
+/**
+ * @brief Arduino setup function.
+ */
 void setup() {
   Serial.begin(9600);
   while(!Serial) {
@@ -168,6 +210,9 @@ void setup() {
   }
 }
 
+/**
+ * @brief Arduino main loop function.
+ */
 void loop() {
   if(Serial.available() > 0) {
     String command = Serial.readStringUntil('\n');

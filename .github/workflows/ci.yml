@@ -3,10 +3,10 @@ name: Python Serial Communication CI
 on:
   push:
     branches:
-      - feature/develop/task3
+      - feature/develop/task4
   pull_request:
     branches:
-      - feature/develop/task3
+      - feature/develop/task4
 
 jobs:
   build-and-test:
@@ -45,6 +45,7 @@ jobs:
           mkdir -p Client-side/deploy/client-output
           mkdir -p Client-side/deploy/server-output
           mkdir -p Client-side/deploy/test-results
+          mkdir -p Client-side/deploy/docs/html
 
       # Install Python dependencies
       - name: Install Python dependencies
@@ -55,6 +56,39 @@ jobs:
           pip install pyserial PyQt5 pytest pytest-json-report
           pip list
           deactivate
+
+      # Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          python3 -m venv Client-side/venv
+          source Client-side/venv/bin/activate
+          pip install --upgrade pip
+          pip install pyserial PyQt5 pytest pytest-json-report
+          pip list
+          deactivate
+
+      # Install Doxygen
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      # Generate Doxygen Documentation
+      - name: Generate Documentation
+        run: |
+          doxygen -g Doxyfile
+          sed -i "s|OUTPUT_DIRECTORY .*|OUTPUT_DIRECTORY = Client-side/docs|g" Doxyfile
+          sed -i "s|INPUT .*|INPUT = Client-side/main.py Server-side/Server-side.ino|g" Doxyfile
+          sed -i "s|GENERATE_LATEX .*|GENERATE_LATEX = NO|g" Doxyfile
+          sed -i "s|RECURSIVE .*|RECURSIVE = YES|g" Doxyfile
+          sed -i "s|EXTENSION_MAPPING .*|EXTENSION_MAPPING = ino=C++ py=Python|g" Doxyfile
+          sed -i "s|FILE_PATTERNS .*|FILE_PATTERNS = *.ino *.cpp *.h *.py|g" Doxyfile
+          echo "EXTRACT_ALL = YES" >> Doxyfile
+          echo "EXTRACT_PRIVATE = YES" >> Doxyfile
+          echo "SHOW_USED_FILES = YES" >> Doxyfile
+          echo "GENERATE_TREEVIEW = YES" >> Doxyfile
+          doxygen Doxyfile
+
 
       # Compile client
       - name: Compile Client
@@ -75,7 +109,7 @@ jobs:
         run: |
           source Client-side/venv/bin/activate
           cd Client-side
-          pytest test.py -v --json-report --json-report-file=deploy/test-results/results.json
+          pytest tests/test.py -v --json-report --json-report-file=deploy/test-results/results.json
           deactivate
 
       # Upload artifacts

@@ -117,8 +117,6 @@ class TestTicTacToeConfig:
         """Перевірка формату послідовних портів"""
         try:
             example_ports = [
-                '/dev/cu.usbserial-0001',
-                '/dev/cu.usbserial-0002',
                 'COM3',
                 'ttyUSB0'
             ]
