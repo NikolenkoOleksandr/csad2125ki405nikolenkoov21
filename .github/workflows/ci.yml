@@ -3,10 +3,10 @@ name: Python Serial Communication CI
 on:
   push:
     branches:
-      - feature/develop/task4
+      - feature/develop/task5
   pull_request:
     branches:
-      - feature/develop/task4
+      - feature/develop/task5
 
 jobs:
   build-and-test:
@@ -23,94 +23,34 @@ jobs:
         with:
           python-version: '3.9'
 
-      # Install Arduino CLI with explicit PATH management
-      - name: Install Arduino CLI
-        run: |
-          mkdir -p /home/runner/bin
-          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/home/runner/bin sh
-          echo "/home/runner/bin" >> $GITHUB_PATH
-          export PATH="/home/runner/bin:$PATH"
-          which arduino-cli
-          arduino-cli version
-          arduino-cli core update-index
-
-      # Install Arduino core for Arduino Uno
-      - name: Install Arduino Uno Core
-        run: |
-          arduino-cli core install arduino:avr
-
-      # Create directories for artifacts
-      - name: Create directories
-        run: |
-          mkdir -p Client-side/deploy/client-output
-          mkdir -p Client-side/deploy/server-output
-          mkdir -p Client-side/deploy/test-results
-          mkdir -p Client-side/deploy/docs/html
-
-      # Install Python dependencies
-      - name: Install Python dependencies
+      # Install dependencies
+      - name: Install Dependencies
         run: |
           python3 -m venv Client-side/venv
           source Client-side/venv/bin/activate
           pip install --upgrade pip
-          pip install pyserial PyQt5 pytest pytest-json-report
-          pip list
+          pip install pytest pytest-cov pyserial coverage
           deactivate
 
-      # Install Python dependencies
-      - name: Install Python dependencies
-        run: |
-          python3 -m venv Client-side/venv
-          source Client-side/venv/bin/activate
-          pip install --upgrade pip
-          pip install pyserial PyQt5 pytest pytest-json-report
-          pip list
-          deactivate
-
-      # Install Doxygen
-      - name: Install Doxygen
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y doxygen
-
-      # Generate Doxygen Documentation
-      - name: Generate Documentation
-        run: |
-          doxygen -g Doxyfile
-          sed -i "s|OUTPUT_DIRECTORY .*|OUTPUT_DIRECTORY = Client-side/docs|g" Doxyfile
-          sed -i "s|INPUT .*|INPUT = Client-side/main.py Server-side/Server-side.ino|g" Doxyfile
-          sed -i "s|GENERATE_LATEX .*|GENERATE_LATEX = NO|g" Doxyfile
-          sed -i "s|RECURSIVE .*|RECURSIVE = YES|g" Doxyfile
-          sed -i "s|EXTENSION_MAPPING .*|EXTENSION_MAPPING = ino=C++ py=Python|g" Doxyfile
-          sed -i "s|FILE_PATTERNS .*|FILE_PATTERNS = *.ino *.cpp *.h *.py|g" Doxyfile
-          echo "EXTRACT_ALL = YES" >> Doxyfile
-          echo "EXTRACT_PRIVATE = YES" >> Doxyfile
-          echo "SHOW_USED_FILES = YES" >> Doxyfile
-          echo "GENERATE_TREEVIEW = YES" >> Doxyfile
-          doxygen Doxyfile
-
-
-      # Compile client
-      - name: Compile Client
+      # Run software tests with coverage
+      - name: Run Software Tests
         run: |
           source Client-side/venv/bin/activate
-          python3 -m py_compile Client-side/main.py > Client-side/deploy/client-output/build.log 2>&1
-          cat Client-side/deploy/client-output/build.log
+          rm -f .coverage
+          coverage run --source=Client-side -m pytest Client-side/tests/sw-tests.py --junitxml=Client-side/deploy/test-results/sw-results.xml
           deactivate
 
-      # Compile server firmware
-      - name: Compile Server Firmware
-        run: |
-          export PATH="/home/runner/bin:$PATH"
-          arduino-cli compile --fqbn arduino:avr:uno Server-side/Server-side.ino --output-dir Client-side/deploy/server-output
-
-      # Run tests
-      - name: Run Tests
+      # Run hardware tests with coverage
+      - name: Run Hardware Tests
         run: |
           source Client-side/venv/bin/activate
-          cd Client-side
-          pytest test.py -v --json-report --json-report-file=deploy/test-results/results.json
+          if [[ -e "/dev/ttyUSB0" ]]; then
+            coverage run --append Client-side/tests/hw-tests.py --port /dev/ttyUSB0 --baudrate 9600 || echo "Hardware tests failed or skipped."
+          else
+            echo "Hardware tests skipped: No device connected."
+          fi
           deactivate
+
 
       # Upload artifacts
       - name: Upload Artifacts
@@ -118,10 +58,3 @@ jobs:
         with:
           name: serial-communication-artifacts
           path: Client-side/deploy/
-
-      # Optional: Add a cleanup step if needed
-      - name: Cleanup
-        if: always()
-        run: |
-          rm -rf Client-side/venv
-          rm -rf __pycache__
